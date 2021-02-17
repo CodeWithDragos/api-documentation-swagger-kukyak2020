@@ -1,0 +1,46 @@
+openapi: "3.0.0"
+info:
+  title: Products API
+  description: API for a service managing products
+  version: 1.0.0
+host: api.example.com
+schemes:
+  - https
+paths:
+  /products:
+    get:
+      summary: Returns a single product.
+      parameters:
+        - in: path
+          name: productId
+          schema:
+            type: string
+          required: true
+          description: ID of the product to get
+      description: Return a single product based on id.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    description: The product ID.
+                    example: XXXX-XXXX-XXXX
+                  name:
+                    type: string
+                    description: The product name.
+                    example: Milk
+    post:
+      summary: Creates a single product.
+      description: Create a product with the information from the body.
+      produces:
+        - application/json
+      responses:
+        200:
+          description: OK

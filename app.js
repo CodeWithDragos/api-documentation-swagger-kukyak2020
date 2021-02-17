@@ -1,0 +1,84 @@
+const express = require("express");
+const bodyParser = require("body-parser");
+const swaggerUi = require("swagger-ui-express");
+const YAML = require("yamljs");
+
+const swaggerDocument = YAML.load("./swagger.yaml");
+
+const app = express();
+
+const productList = [
+  {
+    id: "product_1",
+    name: "Milk",
+    price: 2,
+  },
+  {
+    id: "product_2",
+    name: "Muffin",
+    price: 7,
+  },
+];
+// middleware: parse the body to json
+app.use(bodyParser.json());
+
+// API documentation
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+
+// POST
+app.post("/products", (request, response) => {
+  const product = request.body;
+  productList.push(product);
+  response.json(product);
+});
+
+// GET
+app.get("/products/:productId", (request, response) => {
+  const productId = request.params.productId;
+
+  const product = productList.find((prod) => prod.id === productId);
+
+  if (!product) response.status(404);
+
+  response.json(product);
+});
+
+// PUT
+app.put("/products/:productId", (request, response) => {
+  const productId = request.params.productId;
+
+  const updatedProduct = request.body;
+
+  let newProduct = null;
+  // update
+  productList.forEach((prod, index) => {
+    if (prod.id === productId) {
+      newProduct = {
+        ...productList[index],
+        ...updatedProduct,
+      };
+      productList[index] = newProduct;
+    }
+  });
+
+  response.json(newProduct);
+});
+
+// GET
+app.delete("/products/:productId", (request, response) => {
+  const productId = request.params.productId;
+
+  const productIndex = productList.findIndex((prod) => prod.id === productId);
+
+  if (productIndex > -1) {
+    productList.splice(productIndex, 1);
+    response.status(200).end();
+  } else {
+    response.status(204).end();
+  }
+});
+
+// Product LIST
+app.get("/products-list", (request, response) => response.json(productList));
+
+module.exports = app;
